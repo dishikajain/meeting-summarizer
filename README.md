@@ -24,8 +24,8 @@ meeting_summarizer/
 │   ├── main.py              # FastAPI application & route endpoints (Scaffolded)
 │   ├── transcriber.py       # Audio transcription via Gemini Files API (Scaffolded)
 │   ├── summarizer.py        # Structured summarization via Gemini API (Scaffolded)
-│   ├── database.py          # SQLite database connection & CRUD (Scaffolded)
-│   ├── models.py            # Pydantic schemas & response validation (Scaffolded)
+│   ├── database.py          # SQLite database connection & CRUD (Implemented)
+│   ├── models.py            # Pydantic schemas & response validation (Implemented)
 │   └── requirements.txt     # Minimal backend dependencies (Implemented)
 ├── frontend/
 │   ├── index.html           # Single-page user interface (Scaffolded)
@@ -40,8 +40,8 @@ meeting_summarizer/
 
 - **Phase 1: Project Foundation** — Completed. Clean directory structure, dependencies, and repository hygiene configuration.
 - **Phase 2: Gemini API Foundation** — Completed. Centralized configuration (`config.py`) and reusable Gemini service layer (`gemini_client.py`) using the official `google-genai` SDK with comprehensive error handling.
+- **Phase 3: Database & Models** — Completed. Data schemas (`models.py`) and local SQLite persistence layer with full CRUD operations (`database.py`).
 - **Subsequent Planned Phases:**
-  - Database schema & SQLite persistence layer (`database.py`, `models.py`)
   - Audio transcription via Gemini Files API (`transcriber.py`)
   - Structured meeting summarization with JSON schema enforcement (`summarizer.py`)
   - FastAPI processing pipeline endpoints (`main.py`)
