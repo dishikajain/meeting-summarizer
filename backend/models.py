@@ -8,7 +8,7 @@ Defines schemas for:
 
 from datetime import datetime
 from typing import Optional
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 # ---------------------------------------------------------------------------
@@ -20,14 +20,24 @@ class ActionItem(BaseModel):
     task: str = Field(
         description="The specific action or task to be completed"
     )
-    owner: str = Field(
+    owner: Optional[str] = Field(
         default="Not specified",
         description="Person or entity responsible. Must be 'Not specified' if not explicitly stated in the transcript."
     )
-    deadline: str = Field(
+    deadline: Optional[str] = Field(
         default="Not specified",
         description="Target completion date or timeframe. Must be 'Not specified' if not explicitly stated in the transcript."
     )
+
+    @field_validator("owner", "deadline", mode="before")
+    @classmethod
+    def set_default_if_none_or_blank(cls, v: Optional[str]) -> str:
+        if v is None:
+            return "Not specified"
+        s = str(v).strip()
+        if not s or s.lower() in ("null", "none", "n/a", "unknown"):
+            return "Not specified"
+        return s
 
 
 class MeetingSummary(BaseModel):
