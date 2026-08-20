@@ -44,6 +44,10 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 # Enable CORS for local web interface access
 app.add_middleware(
     CORSMiddleware,
@@ -52,6 +56,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+if FRONTEND_DIR.exists():
+    app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR)), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def serve_root_frontend():
+    """Serve the single-page application frontend."""
+    index_file = FRONTEND_DIR / "index.html"
+    if index_file.exists():
+        return FileResponse(index_file)
+    return {"message": "Meeting Summarizer API is running."}
 
 
 @app.get(

@@ -4,11 +4,192 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meeting Summarizer</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <!-- Frontend structure placeholder for Phase 1 -->
-    <div id="app"></div>
-    <script src="app.js"></script>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">🎙️</div>
+                <div class="logo-text">
+                    <h1>Meeting Summarizer</h1>
+                    <p class="tagline">Gemini-Powered Audio Transcription & Action Intelligence</p>
+                </div>
+            </div>
+            <div class="header-status">
+                <span class="status-badge" id="systemStatusBadge">
+                    <span class="status-dot"></span>
+                    <span id="systemStatusText">Checking system...</span>
+                </span>
+            </div>
+        </header>
+
+        <!-- Main Layout: Grid of Left (Upload + History) & Right (Results) -->
+        <main class="main-layout">
+            <!-- Sidebar: Upload & History -->
+            <aside class="sidebar-column">
+                <!-- Upload Card -->
+                <section class="card upload-card">
+                    <h2 class="card-title">Upload Meeting Audio</h2>
+                    <p class="card-subtitle">Supported formats: WAV, MP3, AAC, OGG, FLAC (Max 20 MB)</p>
+
+                    <div class="dropzone" id="dropzone">
+                        <input type="file" id="audioFileInput" accept=".wav,.mp3,.aac,.ogg,.flac,audio/wav,audio/mpeg,audio/aac,audio/ogg,audio/flac" class="file-input">
+                        <div class="dropzone-content">
+                            <div class="dropzone-icon">📁</div>
+                            <p class="dropzone-text"><strong>Click to browse</strong> or drag & drop audio here</p>
+                            <span class="dropzone-hint">WAV, MP3, AAC, OGG, FLAC &bull; Up to 20 MB</span>
+                        </div>
+                    </div>
+
+                    <!-- Selected File Info -->
+                    <div class="file-info-bar hidden" id="fileInfoBar">
+                        <div class="file-info-details">
+                            <span class="file-icon">🎵</span>
+                            <div class="file-text-meta">
+                                <span class="file-name" id="selectedFileName">filename.mp3</span>
+                                <span class="file-size" id="selectedFileSize">0 KB</span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-clear-file" id="btnClearFile" title="Remove selected file">&times;</button>
+                    </div>
+
+                    <!-- Action Button -->
+                    <button type="button" class="btn-primary" id="btnProcess" disabled>
+                        <span class="btn-icon">⚡</span>
+                        <span id="btnProcessText">Process Meeting</span>
+                    </button>
+
+                    <!-- Error Alert Box -->
+                    <div class="alert alert-error hidden" id="uploadErrorAlert">
+                        <span class="alert-icon">⚠️</span>
+                        <span class="alert-message" id="uploadErrorMessage"></span>
+                    </div>
+                </section>
+
+                <!-- Meeting History Card -->
+                <section class="card history-card">
+                    <div class="history-header">
+                        <h2 class="card-title">Meeting History</h2>
+                        <button type="button" class="btn-icon-refresh" id="btnRefreshHistory" title="Refresh history">🔄</button>
+                    </div>
+                    <div class="history-list" id="historyList">
+                        <div class="empty-history-state" id="emptyHistoryState">
+                            <span>No stored meetings yet.</span>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- Content Area: Results Display -->
+            <section class="content-column">
+                <!-- Welcome Empty State (Before any meeting is selected or processed) -->
+                <div class="card empty-welcome-card" id="emptyWelcomeState">
+                    <div class="welcome-graphic">📊</div>
+                    <h3>Ready to summarize your meetings</h3>
+                    <p>Upload an audio file on the left and click <strong>Process Meeting</strong> to generate verbatim transcripts, executive summaries, decisions, and action items.</p>
+                </div>
+
+                <!-- Processing / Loading State -->
+                <div class="card loading-card hidden" id="loadingState">
+                    <div class="spinner-container">
+                        <div class="modern-spinner"></div>
+                    </div>
+                    <h3 class="loading-title" id="loadingTitle">Processing Meeting Audio...</h3>
+                    <p class="loading-subtitle" id="loadingSubtitle">Uploading audio to Gemini Files API &bull; Transcribing speech...</p>
+                    <div class="progress-steps">
+                        <div class="step-item active" id="step1">1. Audio Upload & Validation</div>
+                        <div class="step-item" id="step2">2. Gemini Audio Transcription</div>
+                        <div class="step-item" id="step3">3. Structured Summarization</div>
+                        <div class="step-item" id="step4">4. Persistence & Output</div>
+                    </div>
+                </div>
+
+                <!-- Results Display Card (Hidden until data is available) -->
+                <div class="card results-card hidden" id="resultsState">
+                    <!-- Meeting Meta Header -->
+                    <div class="meeting-meta-header">
+                        <div class="meta-title-area">
+                            <span class="meta-badge" id="resMeetingIdBadge">Meeting #1</span>
+                            <h2 class="meta-filename" id="resMeetingFilename">meeting_audio.mp3</h2>
+                        </div>
+                        <div class="meta-time" id="resMeetingTime">Processed on: 2026-08-20 12:00 UTC</div>
+                    </div>
+
+                    <!-- Navigation Tabs -->
+                    <div class="tabs-nav" role="tablist">
+                        <button type="button" class="tab-btn active" data-tab="tab-summary">
+                            <span class="tab-icon">📋</span> Executive Summary
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-decisions">
+                            <span class="tab-icon">🎯</span> Key Decisions
+                            <span class="tab-count-badge" id="badgeDecisionsCount">0</span>
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-actions">
+                            <span class="tab-icon">✅</span> Action Items
+                            <span class="tab-count-badge" id="badgeActionsCount">0</span>
+                        </button>
+                        <button type="button" class="tab-btn" data-tab="tab-transcript">
+                            <span class="tab-icon">📝</span> Full Transcript
+                        </button>
+                    </div>
+
+                    <!-- Tab Panels -->
+                    <div class="tab-content-area">
+                        <!-- Panel: Summary -->
+                        <div class="tab-panel active" id="tab-summary">
+                            <div class="summary-box">
+                                <h3 class="panel-section-title">Executive Summary</h3>
+                                <p class="summary-text" id="resSummaryText"></p>
+                            </div>
+                        </div>
+
+                        <!-- Panel: Decisions -->
+                        <div class="tab-panel hidden" id="tab-decisions">
+                            <h3 class="panel-section-title">Key Decisions Made</h3>
+                            <ul class="decisions-list" id="resDecisionsList"></ul>
+                        </div>
+
+                        <!-- Panel: Action Items -->
+                        <div class="tab-panel hidden" id="tab-actions">
+                            <h3 class="panel-section-title">Action Items & Tasks</h3>
+                            <div class="table-responsive">
+                                <table class="action-items-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 55%;">Task / Action</th>
+                                            <th style="width: 25%;">Owner</th>
+                                            <th style="width: 20%;">Deadline</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="resActionsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Panel: Full Transcript -->
+                        <div class="tab-panel hidden" id="tab-transcript">
+                            <div class="transcript-header-bar">
+                                <h3 class="panel-section-title">Verbatim Transcript</h3>
+                                <button type="button" class="btn-copy-transcript" id="btnCopyTranscript" title="Copy transcript to clipboard">
+                                    📋 Copy Transcript
+                                </button>
+                            </div>
+                            <div class="transcript-box">
+                                <pre class="transcript-text" id="resTranscriptText"></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Frontend Script -->
+    <script src="/static/app.js"></script>
 </body>
 </html>
