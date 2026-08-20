@@ -3,7 +3,8 @@ Data models and Pydantic schemas for Meeting Summarizer.
 
 Defines schemas for:
 - Structured LLM output (MeetingSummary, ActionItem)
-- API responses (MeetingDetailResponse, MeetingListItemResponse, HealthResponse)
+- API requests (SummarizeRequest)
+- API responses (MeetingDetailResponse, MeetingListItemResponse, TranscriptionResponse, HealthResponse)
 """
 
 from datetime import datetime
@@ -59,8 +60,24 @@ class MeetingSummary(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# API Response Schemas
+# API Request & Response Schemas
 # ---------------------------------------------------------------------------
+
+class SummarizeRequest(BaseModel):
+    """Request payload schema for POST /summarize endpoint."""
+    transcript: str = Field(
+        ...,
+        description="The verbatim meeting transcript to summarize.",
+        min_length=1,
+    )
+
+
+class TranscriptionResponse(BaseModel):
+    """Response schema for POST /transcribe endpoint."""
+    transcript: str = Field(
+        description="The verbatim text transcript generated from audio."
+    )
+
 
 class MeetingDetailResponse(BaseModel):
     """Full meeting record schema returned by POST /process and GET /meetings/{id}."""

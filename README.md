@@ -21,7 +21,7 @@ meeting_summarizer/
 ├── backend/
 │   ├── config.py            # Centralized environment configuration (Implemented)
 │   ├── gemini_client.py     # Gemini client & service wrapper (Implemented)
-│   ├── main.py              # FastAPI application & route endpoints (Scaffolded)
+│   ├── main.py              # FastAPI application & route endpoints (Implemented)
 │   ├── transcriber.py       # Audio transcription via Gemini Files API (Implemented)
 │   ├── summarizer.py        # Structured summarization via Gemini API (Implemented)
 │   ├── database.py          # SQLite database connection & CRUD (Implemented)
@@ -43,8 +43,8 @@ meeting_summarizer/
 - **Phase 3: Database & Models** — Completed. Data schemas (`models.py`) and local SQLite persistence layer with full CRUD operations (`database.py`).
 - **Phase 4: Audio Transcription** — Completed. Gemini Files API audio upload, validation (size <= 20 MB, formats `.wav`, `.mp3`, `.aac`, `.ogg`, `.flac`), verbatim transcription via `gemini-2.5-flash`, and automatic file reference cleanup (`transcriber.py`).
 - **Phase 5: Structured Summarization** — Completed. Gemini 2.5 Flash structured meeting summarization enforcing `MeetingSummary` Pydantic response schema, anti-hallucination rules, and "Not specified" fallbacks (`summarizer.py`).
+- **Phase 6: FastAPI Processing Pipeline** — Completed. Integrated processing endpoints (`GET /health`, `POST /transcribe`, `POST /summarize`, `POST /process`, `GET /meetings`, `GET /meetings/{id}`) with comprehensive HTTP validation and error handling (`main.py`).
 - **Subsequent Planned Phases:**
-  - FastAPI processing pipeline endpoints (`main.py`)
   - Vanilla frontend interface & meeting history (`index.html`, `style.css`, `app.js`)
 
 ## Planned Processing Pipeline
