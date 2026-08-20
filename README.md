@@ -31,6 +31,11 @@ meeting_summarizer/
 │   ├── index.html           # Single-page user interface (Implemented)
 │   ├── style.css            # Custom responsive styles (Implemented)
 │   └── app.js               # Client-side API interactions & UI logic (Implemented)
+├── demo_video/
+│   └── meeting-summarizer-demo.mp4  # Walkthrough demonstration video
+├── sample_audio/
+│   └── sample_meeting.wav   # Sample meeting audio recording for testing
+├── screenshots/             # Application UI and API documentation screenshots (9 images)
 ├── .env.example             # Environment configuration template (Implemented)
 ├── .gitignore               # Strict repository exclusion rules (Implemented)
 └── README.md                # Project documentation (Implemented)
@@ -106,6 +111,34 @@ The project is structured to demonstrate an end-to-end meeting analysis walkthro
 - **Action Items:** Itemized table of tasks with assigned owners and deadlines (with `"Not specified"` fallback for unmentioned values).
 - **Full Transcript:** Complete verbatim text with one-click clipboard copying.
 - **Meeting History:** Instant browsing and reloading of previous meeting summaries from SQLite persistence.
+
+### Demo Video
+
+A short walkthrough demonstrating the complete Meeting Summarizer workflow, including audio upload, transcription, structured summarization, action-item extraction, full transcript viewing, and meeting history persistence.
+
+[Watch the Demo Video](demo_video/meeting-summarizer-demo.mp4)
+
+## Screenshots
+
+The following screenshots demonstrate the application's main workflow, generated results, meeting history, and API endpoints.
+
+![Application Home and Audio Upload](screenshots/01-home-upload.png)
+
+![Audio Processing Pipeline](screenshots/02-processing.png)
+
+![Executive Summary](screenshots/03-executive-summary.png)
+
+![Key Decisions](screenshots/04-key-decisions.png)
+
+![Action Items](screenshots/05-action-items.png)
+
+![Transcript and Meeting History](screenshots/06-transcript-history.png)
+
+![API System and Transcription Endpoints](screenshots/07-api-system-transcription.png)
+
+![API Summarization and Processing Endpoints](screenshots/08-api-summarization-pipeline.png)
+
+![API Meeting Endpoints](screenshots/09-api-meetings.png)
 
 ## Configuration & Gemini API Setup
 

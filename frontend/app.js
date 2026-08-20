@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // -----------------------------------------------------------------------
     let currentSelectedFile = null;
     let activeMeetingId = null;
-    let progressTimer = null;
+    let progressTimeouts = [];
 
     // -----------------------------------------------------------------------
     // Initialization
@@ -68,9 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const res = await fetch('/health');
             if (res.ok) {
-                const data = await res.json();
                 systemStatusBadge.classList.add('online');
-                systemStatusText.textContent = `Online (${data.model || 'Gemini'})`;
+                systemStatusText.textContent = 'Online';
             } else {
                 systemStatusText.textContent = 'Server unavailable';
             }
@@ -168,6 +167,77 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // -----------------------------------------------------------------------
+    // Stage Progression Configuration & UI
+    // -----------------------------------------------------------------------
+    const stepConfigs = [
+        { id: 'step1', label: '1. Audio Upload & Validation', msg: 'Uploading and validating audio stream...' },
+        { id: 'step2', label: '2. Gemini Audio Transcription', msg: 'Transcribing speech to verbatim text...' },
+        { id: 'step3', label: '3. Structured Summarization', msg: 'Extracting executive summary, decisions, and action items...' },
+        { id: 'step4', label: '4. Persistence & Output', msg: 'Saving meeting record to database...' }
+    ];
+
+    /**
+     * Set stage visual state:
+     * - Indices < activeIndex: completed (green checkmark ✅)
+     * - Index === activeIndex: active (pulsing / working ⏳)
+     * - Indices > activeIndex: neutral (pending ⚪)
+     * If activeIndex >= 4, all stages are marked completed ✅
+     */
+    function renderStageState(activeIndex) {
+        stepConfigs.forEach((cfg, idx) => {
+            const el = document.getElementById(cfg.id);
+            if (!el) return;
+            const iconEl = el.querySelector('.step-icon');
+            const labelEl = el.querySelector('.step-label');
+
+            if (idx < activeIndex) {
+                el.className = 'step-item completed';
+                if (iconEl) iconEl.textContent = '✅';
+            } else if (idx === activeIndex) {
+                el.className = 'step-item active';
+                if (iconEl) iconEl.textContent = '⏳';
+            } else {
+                el.className = 'step-item';
+                if (iconEl) iconEl.textContent = '⚪';
+            }
+            if (labelEl) labelEl.textContent = cfg.label;
+        });
+
+        if (activeIndex < stepConfigs.length) {
+            loadingSubtitle.textContent = stepConfigs[activeIndex].msg;
+        }
+    }
+
+    function startProgressSequence() {
+        clearAllTimeouts();
+
+        // Stage 1 active immediately
+        renderStageState(0);
+
+        // Stage 2 active after 2.5 seconds (Stage 1 becomes completed)
+        const t1 = setTimeout(() => {
+            renderStageState(1);
+        }, 2500);
+
+        // Stage 3 active after 8.0 seconds (Stage 1 & 2 become completed)
+        const t2 = setTimeout(() => {
+            renderStageState(2);
+        }, 8000);
+
+        // Stage 4 active after 16.0 seconds (Stage 1, 2, 3 become completed, stays here until response arrives)
+        const t3 = setTimeout(() => {
+            renderStageState(3);
+        }, 16000);
+
+        progressTimeouts = [t1, t2, t3];
+    }
+
+    function clearAllTimeouts() {
+        progressTimeouts.forEach(t => clearTimeout(t));
+        progressTimeouts = [];
+    }
+
+    // -----------------------------------------------------------------------
     // Meeting Processing (POST /process)
     // -----------------------------------------------------------------------
     btnProcess.addEventListener('click', async () => {
@@ -192,6 +262,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const meetingData = await res.json();
+
+            // Stop all progression timers immediately
+            clearAllTimeouts();
+
+            // Mark all 4 stages completed
+            renderStageState(4);
+            loadingSubtitle.textContent = 'Processing complete! Rendering results...';
+
+            // Brief pause so user sees all green checkmarks
+            await new Promise(r => setTimeout(r, 400));
+
             displayMeetingResults(meetingData);
             clearSelectedFile();
             loadMeetingHistory(meetingData.id);
@@ -210,39 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingState.classList.remove('hidden');
         btnProcess.disabled = true;
 
-        const steps = [
-            document.getElementById('step1'),
-            document.getElementById('step2'),
-            document.getElementById('step3'),
-            document.getElementById('step4')
-        ];
-
-        steps.forEach((s, idx) => {
-            if (idx === 0) s.classList.add('active');
-            else s.classList.remove('active');
-        });
-
-        let currentStep = 0;
-        const messages = [
-            '1. Uploading & validating audio stream...',
-            '2. Gemini 2.5 Flash is transcribing meeting audio...',
-            '3. Extracting executive summary, decisions, and action items...',
-            '4. Saving results to database...'
-        ];
-
-        if (progressTimer) clearInterval(progressTimer);
-        progressTimer = setInterval(() => {
-            currentStep = (currentStep + 1) % steps.length;
-            steps.forEach((s, idx) => {
-                if (idx <= currentStep) s.classList.add('active');
-                else s.classList.remove('active');
-            });
-            loadingSubtitle.textContent = messages[currentStep];
-        }, 3000);
+        startProgressSequence();
     }
 
     function hideProcessingState() {
-        if (progressTimer) clearInterval(progressTimer);
+        clearAllTimeouts();
         loadingState.classList.add('hidden');
         if (currentSelectedFile) {
             btnProcess.disabled = false;

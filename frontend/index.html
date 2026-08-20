@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
     <div class="app-container">
         <!-- Header -->
@@ -17,7 +19,7 @@
                 <div class="logo-icon">🎙️</div>
                 <div class="logo-text">
                     <h1>Meeting Summarizer</h1>
-                    <p class="tagline">Gemini-Powered Audio Transcription & Action Intelligence</p>
+                    <p class="tagline">Audio Transcription & Action Intelligence</p>
                 </div>
             </div>
             <div class="header-status">
@@ -38,7 +40,9 @@
                     <p class="card-subtitle">Supported formats: WAV, MP3, AAC, OGG, FLAC (Max 20 MB)</p>
 
                     <div class="dropzone" id="dropzone">
-                        <input type="file" id="audioFileInput" accept=".wav,.mp3,.aac,.ogg,.flac,audio/wav,audio/mpeg,audio/aac,audio/ogg,audio/flac" class="file-input">
+                        <input type="file" id="audioFileInput"
+                            accept=".wav,.mp3,.aac,.ogg,.flac,audio/wav,audio/mpeg,audio/aac,audio/ogg,audio/flac"
+                            class="file-input">
                         <div class="dropzone-content">
                             <div class="dropzone-icon">📁</div>
                             <p class="dropzone-text"><strong>Click to browse</strong> or drag & drop audio here</p>
@@ -55,7 +59,8 @@
                                 <span class="file-size" id="selectedFileSize">0 KB</span>
                             </div>
                         </div>
-                        <button type="button" class="btn-clear-file" id="btnClearFile" title="Remove selected file">&times;</button>
+                        <button type="button" class="btn-clear-file" id="btnClearFile"
+                            title="Remove selected file">&times;</button>
                     </div>
 
                     <!-- Action Button -->
@@ -75,7 +80,8 @@
                 <section class="card history-card">
                     <div class="history-header">
                         <h2 class="card-title">Meeting History</h2>
-                        <button type="button" class="btn-icon-refresh" id="btnRefreshHistory" title="Refresh history">🔄</button>
+                        <button type="button" class="btn-icon-refresh" id="btnRefreshHistory"
+                            title="Refresh history">🔄</button>
                     </div>
                     <div class="history-list" id="historyList">
                         <div class="empty-history-state" id="emptyHistoryState">
@@ -91,7 +97,8 @@
                 <div class="card empty-welcome-card" id="emptyWelcomeState">
                     <div class="welcome-graphic">📊</div>
                     <h3>Ready to summarize your meetings</h3>
-                    <p>Upload an audio file on the left and click <strong>Process Meeting</strong> to generate verbatim transcripts, executive summaries, decisions, and action items.</p>
+                    <p>Upload an audio file on the left and click <strong>Process Meeting</strong> to generate verbatim
+                        transcripts, executive summaries, decisions, and action items.</p>
                 </div>
 
                 <!-- Processing / Loading State -->
@@ -100,12 +107,24 @@
                         <div class="modern-spinner"></div>
                     </div>
                     <h3 class="loading-title" id="loadingTitle">Processing Meeting Audio...</h3>
-                    <p class="loading-subtitle" id="loadingSubtitle">Uploading audio to Gemini Files API &bull; Transcribing speech...</p>
+                    <p class="loading-subtitle" id="loadingSubtitle">Uploading audio &bull; Transcribing speech...</p>
                     <div class="progress-steps">
-                        <div class="step-item active" id="step1">1. Audio Upload & Validation</div>
-                        <div class="step-item" id="step2">2. Gemini Audio Transcription</div>
-                        <div class="step-item" id="step3">3. Structured Summarization</div>
-                        <div class="step-item" id="step4">4. Persistence & Output</div>
+                        <div class="step-item" id="step1">
+                            <span class="step-icon">⚪</span>
+                            <span class="step-label">1. Audio Upload & Validation</span>
+                        </div>
+                        <div class="step-item" id="step2">
+                            <span class="step-icon">⚪</span>
+                            <span class="step-label">2. Gemini Audio Transcription</span>
+                        </div>
+                        <div class="step-item" id="step3">
+                            <span class="step-icon">⚪</span>
+                            <span class="step-label">3. Structured Summarization</span>
+                        </div>
+                        <div class="step-item" id="step4">
+                            <span class="step-icon">⚪</span>
+                            <span class="step-label">4. Persistence & Output</span>
+                        </div>
                     </div>
                 </div>
 
@@ -175,7 +194,8 @@
                         <div class="tab-panel hidden" id="tab-transcript">
                             <div class="transcript-header-bar">
                                 <h3 class="panel-section-title">Verbatim Transcript</h3>
-                                <button type="button" class="btn-copy-transcript" id="btnCopyTranscript" title="Copy transcript to clipboard">
+                                <button type="button" class="btn-copy-transcript" id="btnCopyTranscript"
+                                    title="Copy transcript to clipboard">
                                     📋 Copy Transcript
                                 </button>
                             </div>
@@ -192,4 +212,5 @@
     <!-- Frontend Script -->
     <script src="/static/app.js"></script>
 </body>
+
 </html>
